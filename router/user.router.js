@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from "json-web-token";
+import * as url from "url";
 
 const router = express.Router();
 // const User = require('../models/User');
@@ -54,7 +55,7 @@ router.post('/refer', async (req, res) => {
             console.log(referredUser.referralCode);
 
             referringUser.referredUsers.push(savedUser._id);
-            referringUser.points += 50; // add points to referring user's account
+            referringUser.coins += 50; // add points to referring user's account
             await referringUser.save();
             res.json(savedUser);
         } catch (err) {
@@ -81,6 +82,51 @@ router.post('/login', async (req, res) => {
     }
     else
         return res.json({ "token": "error" });
+})
+
+router.get("/getprofile", async (req, res) => {
+    var url_obj = url.parse(req.url, true).query;
+    //  console.log(url_obj);
+    var userlist = await User.find(url_obj);
+    //  console.log(userlist);
+    if (userlist.length != 0)
+        return res.status(201).json(userlist);
+    else
+        return res.status(500).json(userlist);
+})
+
+router.patch("/updateuser", async (req, res) => {
+    // console.log(req.body);
+    var userDetails = await User.find({ _id: req.body._id });
+    // console.log(userDetails);
+    if (userDetails.length != 0) {
+        var id = req.body._id;
+        // delete req.body._id;
+        var user = await User.updateOne({ _id: id }, { $set: req.body })
+        if (user != 0)
+            return res.status(201).json({ "msg": "succ" });
+        else
+            return res.status(500).json({ error: "Server Error" });
+    }
+    else
+        return res.status(404).json({ error: "requested resource not available" });
+})
+
+router.delete("/deleteuser", async (req, res) => {
+    // console.log(req.body);
+    var userDetails = await User.find({ _id: req.body._id });
+    // console.log(userDetails);
+    var id = req.body._id;
+    if (userDetails.length != 0) {
+        let result = await User.deleteOne({ _id: id });
+        if (result)
+            return res.status(203).json({ "msg": "success" })
+        else
+            return res.status(500).json({ error: 'Server Error' });
+    }
+
+    else
+        return res.status(404).json({ error: 'Resource not found' });
 })
 
 export default router;
