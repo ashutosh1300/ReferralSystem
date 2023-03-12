@@ -50,9 +50,9 @@ router.post('/refer', async (req, res) => {
 
 
         try {
-            console.log(referredUser.referralCode);
+            // console.log(referredUser.referralCode);
             const savedUser = await referredUser.save();
-            console.log(referredUser.referralCode);
+            // console.log(referredUser.referralCode);
 
             referringUser.referredUsers.push(savedUser._id);
             referringUser.coins += 50; // add points to referring user's account
@@ -70,16 +70,18 @@ router.post('/refer', async (req, res) => {
 router.post('/login', async (req, res) => {
     var userDetails = req.body;
     var user = await User.findOne({ email: userDetails.email });
+    // console.log(user);
     if (user) {
         if (user.password === userDetails.password) {
 
             let payload = { "subject": user.email };
             let token = jwt.encode("qwdbqkbdkqwd", payload);
             return res.status(200).json({ "token": token, "user": user });
-        } else {
+        }
+         else {
             return res.status(401).json({ message: "Invalid credentials" })
         }
-    }
+    }    
     else
         return res.json({ "token": "error" });
 })

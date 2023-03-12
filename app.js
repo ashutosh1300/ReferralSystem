@@ -5,7 +5,7 @@ const app = express();
 
 //to get router
 import usersRouter from './router/user.router.js';
-// app.use(express.json());
+app.use(express.json());
 app.use(bodyParser());
 
 // const usersRouter = require('./routes/users');
